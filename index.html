@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meditation App</title>
+    <style>
+        *
+        {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        .app
+        {
+            height: 100vh;
+            width: 1200px;
+           display: flex;
+           margin: 0 auto;
+           justify-content: center;
+           
+        }
+        .time-buttons,.player-container,.music-buttons
+        {
+            width: 30%;
+        
+        }
+        .time-buttons,.music-buttons
+        {   display: flex;
+        
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+           
+        }
+         
+         .player-container
+         {   
+             position: relative;
+             display: flex;
+             flex-direction: column;
+             justify-content: center;
+             align-items: center;
+        
+         }
+     
+         .player-container svg
+         {   
+             position: absolute;
+           max-height: 90%;
+           max-width: 90%;
+           z-index: -1;
+         }
+         .player-container img
+  {  
+      cursor: pointer;
+  }
+  video
+  {
+      position: fixed;
+      top: 0%;
+      left: 0%;
+      width: 100%;
+      z-index: -10;
+  }
+  .time-display
+  {
+      position: absolute;
+      bottom:10%;
+      color: white;
+      font-size: 2rem;
+  }
+
+  .time-buttons button
+  {
+      color:white;
+      background-color:#4972a1;
+      border: 0.15rem solid white;
+      height: 3rem;
+      width: 7rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 400;
+      cursor: pointer;
+  }
+  .time-buttons button:hover
+  {
+      background-color: white;
+      color:#4972a1;
+  }
+  .music-buttons button
+  {
+      border: none;
+      height: 8rem;
+      width: 8rem;
+      border-radius: 50%;
+      padding: 2rem;
+  }
+  .music-buttons button img
+  {
+      height: 100%;
+  }
+  .music-buttons button:nth-child(1)
+  {
+      background-color: #4972a1;
+  }
+  .music-buttons button:nth-child(2)
+  {
+      background-color: #a14f49;
+  }
+
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="vid-container">
+            <video loop src="video/rain.mp4" class="video" type="video/mp4"></video>
+        </div>
+        <div class="time-buttons">
+            <button data-time="120">2 minutes</button>
+            <button data-time="300">5 minutes</button>
+            <button data-time="600">10 minutes</button>
+        </div>
+        <div class="player-container">
+          <audio src="sounds/rain.mp3" class="song"></audio>
+          <svg class="track-outline" width="453" height="453" viewBox="0 0 453 453" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="226.5" cy="226.5" r="216.5" stroke="white" stroke-width="20"/>
+            </svg>
+            <svg class="moving-outline" width="453" height="453" viewBox="0 0 453 453" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="226.5" cy="226.5" r="216.5" stroke="#018EBA" stroke-width="20"/>
+                </svg>
+            <img src="svg/play.svg" class="play" alt="">
+           
+                    <img src="svg/replay.svg" class="replay"alt="replay">    
+                    <h3 class="time-display">0:00</h3>  
+        </div>
+      
+        <div class="music-buttons">
+            
+            <button data-sound="sounds/rain.mp3" data-video="video/rain.mp4"><img src="svg/rain.svg" alt=""></button>
+            <button data-sound="sounds/beach.mp3" data-video="video/beach.mp4"><img src="svg/beach.svg" alt=""></button>
+
+        </div>
+    </div>
+    <script>
+
+//Default video and song
+const song=document.querySelector(".song");
+const video=document.querySelector(".video");
+//Play Button and Progress Circle
+const play=document.querySelector(".play");
+const outline=document.querySelector(".moving-outline circle");
+//Replay Button
+const replay=document.querySelector(".replay");
+//Time Display
+const timeDisplay=document.querySelector(".time-display");
+const outlinelength=outline.getTotalLength();
+let DefaultDuration=600;
+timeDisplay.textContent=`${DefaultDuration/60}:${DefaultDuration%60}`;
+//Timer Progress circle
+outline.style.strokeDasharray=outlinelength;
+outline.style.strokeDashoffset=outlinelength;
+//Sounds Buttons
+const sounds=document.querySelectorAll(".music-buttons button");
+//Time Buttons
+const time_durations=document.querySelectorAll(".time-buttons button");
+//Function for Sound Choose
+sounds.forEach(option=>{
+    option.addEventListener("click",()=>{
+        song.src=option.getAttribute("data-sound");
+        
+        video.src=option.getAttribute("data-video");
+        play.src="svg/play.svg";
+    })
+})
+//Function for Time Select
+time_durations.forEach(option=>{
+option.addEventListener("click",()=>{
+    DefaultDuration=option.getAttribute("data-time");
+    song.currentTime=0;
+    timeDisplay.textContent=`${DefaultDuration/60}:${DefaultDuration%60}`;
+})
+});
+
+
+//Function for play and stop the audio
+play.addEventListener("click",()=>{
+   if(video.paused)
+   {
+    
+    song.play();
+    video.play();
+    console.log("Current Time:"+song.currentTime);
+    play.src="svg/pause.svg";
+   }
+   else{
+       song.pause();
+       video.pause();
+       play.src="svg/play.svg";
+   }
+});
+//Function for circle and time update
+song.ontimeupdate=()=>{
+let currentTime=song.currentTime;
+console.log("Current Time:"+currentTime);
+let elapsed=DefaultDuration-currentTime;
+console.log("Elapsed:"+elapsed);
+let minutes=Math.floor(elapsed/60);
+let seconds=Math.floor(elapsed%60);
+
+let progress=outlinelength-(currentTime/DefaultDuration)*outlinelength;
+
+outline.style.strokeDashoffset=progress;
+timeDisplay.textContent=`${minutes}:${seconds}`;// or we can use minutes":"seconds too
+if(currentTime>DefaultDuration)
+{
+    song.pause();
+    video.pause();
+    song.currentTime=0;
+    play.src="svg/play.svg"
+}
+
+}
+//Function for replay
+replay.addEventListener("click",()=>{
+    song.currentTime=0;
+
+
+})
+
+    </script>
+</body>
+</html>
